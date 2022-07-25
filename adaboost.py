@@ -25,19 +25,19 @@ def run_adaboost(X_train, Y_train, T=80):
     """
     #initialization
     from math import log
-    assert len(X_train)==len(Y_train)
-    n= len(X_train)
-    D= [1/n for j in range(n)]
-    weights= [0]
+    assert len(X_train) == len(Y_train)
+    n = len(X_train)
+    D = [1/n for j in range(n)]
+    weights = [0]
     hypothesis= [()]
     #import sys
     #sys.setrecursionlimit(n)
     for t in range(1,T+1):
         #print(str(t)+"-started")
-        h=get_WL(D, X_train, Y_train)
+        h = get_WL(D, X_train, Y_train)
         hypothesis.append(h)
         #print("t-"+ str(t)+" length:"+str(len(hypothesis)))
-        epsilon_t=calc_weighted_error(D, t, X_train,Y_train, h)
+        epsilon_t = calc_weighted_error(D, t, X_train,Y_train, h)
         weights.append( 0.5* np.log((1-epsilon_t)/epsilon_t))
         ekans = np.array([(-1)*weights[t]*Y_train[i]*get_h(h, x=X_train[i]) for i in range(n)])  # Ekans- the snake pokemon
         arbok= np.exp(ekans) #the evolution of ekans
@@ -56,14 +56,14 @@ def get_WL(D, x_train, Y_train):
     """
     return weak learner function for adaboost
     """
-    pos_j, pos_theta, Gpos= WL_wrapper(D, x_train, Y_train,1)
-    neg_j, neg_theta, Gneg= WL_wrapper(D, x_train, Y_train, -1)
-    if Gpos<Gneg:\
+    pos_j, pos_theta, Gpos = WL_wrapper(D, x_train, Y_train,1)
+    neg_j, neg_theta, Gneg = WL_wrapper(D, x_train, Y_train, -1)
+    if Gpos < Gneg:\
         return (1, pos_j, pos_theta)
     return (-1, neg_j, neg_theta)
 
 def WL_wrapper(D, X_train, Y_train, tag):
-    min_sumD= np.Infinity      #min error
+    min_sumD = np.Infinity      #min error
     tetha = 0
     JMin = 0
     d = len(X_train[0])
@@ -72,25 +72,24 @@ def WL_wrapper(D, X_train, Y_train, tag):
     #print(d)
         
     for j in range(d):
-        arr=[]
+        arr = []
         for i in range(n):
-            #assert type(D[i])==np.float64 or type(D[i])==float
             arr.append([X_train[i][j], Y_train[i], D[i]])
         
         jVals=np.array(arr)
         jVals = jVals[np.argsort(jVals[:, 0])]
         mat_at_n1 = np.array([jVals[n-1][0]+1, 0,0])
-        jVals= np.vstack((jVals, mat_at_n1))     # add x_m+1,j = x_m,y  +1
+        jVals = np.vstack((jVals, mat_at_n1))     # add x_m+1,j = x_m,y  +1
         sumD = 0
         for i in range(n):  #calc sum Di from rec where yi= sign(b)
             #remider: jVals[i][0]- xi, jVals[i][1]- yi, jVal[i][2]- D[i]
-            x_i= jVals[i][0]
-            y_i= jVals[i][1]
-            D_i= jVals[i][2]
-            if(y_i==tag):
+            x_i = jVals[i][0]
+            y_i = jVals[i][1]
+            D_i = jVals[i][2]
+            if(y_i == tag):
                 sumD += D_i
         try:
-            if(sumD<min_sumD):
+            if(sumD < min_sumD):
                 min_sumD = sumD
                 tetha = jVals[0][0]-1
                 JMin = j
@@ -100,11 +99,11 @@ def WL_wrapper(D, X_train, Y_train, tag):
             print(len(sumD))
             print(type(min_sumD))
         for i in range(n): #choose tetha for h
-            x_i= jVals[i][0]
-            y_i= jVals[i][1]
-            D_i= jVals[i][2]
+            x_i = jVals[i][0]
+            y_i = jVals[i][1]
+            D_i = jVals[i][2]
             sumD = sumD - tag*y_i*D_i
-            if(sumD<min_sumD and  i+1<n and x_i!=jVals[i+1][0]):
+            if(sumD < min_sumD and  i+1 < n and x_i != jVals[i+1][0]):
                 min_sumD =  sumD
                 tetha = 0.5 * (x_i + jVals[i+1][0])
                 JMin = j
@@ -132,7 +131,7 @@ def get_h(h, x):
 
 def calc_weighted_error(D, ind, X_train, Y_train, h):
     sum = 0
-    n=len(X_train)
+    n = len(X_train)
     for i in range(n):
         sum += D[i]*calc_z0_loss(X_train[i], Y_train[i], h)
     
@@ -145,8 +144,8 @@ def calc_z0_loss(x, y, h):
     index = h[1]
     theta = h[2]
     if(x[index] > theta):
-        pred*=-1
-    if pred==y:
+        pred *= -1
+    if pred == y:
         return 0
     return 1
 
@@ -218,8 +217,7 @@ def main():
 
     hypothesis, alpha_vals = run_adaboost(X_train, y_train, T)
 
-    ##############################################
-    # You can add more methods here, if needed.
+    ############################################
   
     def plot_test_err(X_train= data[0], Y_train=data[1], X_test=data[2], Y_test=data[3], T=80):
         err_train= calc_error(X_train, Y_train, hypothesis, alpha_vals)
@@ -236,8 +234,8 @@ def main():
             #print(hypothesis[t])
             #print("index "+str(hypothesis[t][1])+": "+vocab[hypothesis[t][1]])
     def plot_loss_func(X_train= data[0], Y_train=data[1], X_test=data[2], Y_test=data[3], T=80):
-        loss_train= calc_loss(X_train, Y_train, hypothesis, alpha_vals)
-        loss_test= calc_loss(X_test, Y_test, hypothesis, alpha_vals)
+        loss_train = calc_loss(X_train, Y_train, hypothesis, alpha_vals)
+        loss_test = calc_loss(X_test, Y_test, hypothesis, alpha_vals)
         plt.xlabel("t values")
         plt.ylabel("loss")
         X=[t for t in range(1,T+1)]
@@ -245,9 +243,9 @@ def main():
         plt.plot(X,loss_test, color='red', label='test loss')
         plt.legend(loc="upper right")
         #plt.show()
-    #plot_test_err()
-    #get_predictors()
-    #plot_loss_func()
+    plot_test_err()
+    get_predictors()
+    plot_loss_func()
     
 
 
